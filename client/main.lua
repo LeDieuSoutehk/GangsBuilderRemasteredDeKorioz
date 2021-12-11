@@ -316,6 +316,44 @@ function OpenGangActionsMenu()
 
 end
 
+function OpenVehicleSpawnerMenu()
+	local vehSpawnPoint = ActualGang.VehSpawnPoint
+	local vehSpawnHeading = ActualGang.VehSpawnHeading
+
+	ESX.UI.Menu.CloseAll()
+
+	local elements = {}
+
+	ESX.TriggerServerCallback('esx_society:getVehiclesInGarage', function(vehicles)
+		for i = 1, #vehicles, 1 do
+			table.insert(elements, {
+				label = GetDisplayNameFromVehicleModel(vehicles[i].model),
+				rightlabel = {'[' .. (vehicles[i].plate or '') .. ']'},
+				value = vehicles[i]
+			})
+		end
+
+		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner', {
+			title = _U('vehicle_menu'),
+			elements = elements
+		}, function(data, menu)
+			menu.close()
+			local vehicleProps = data.current.value
+
+			ESX.Game.SpawnVehicle(vehicleProps.model, vehSpawnPoint, vehSpawnHeading, function(vehicle)
+				ESX.Game.SetVehicleProperties(vehicle, vehicleProps)
+			end)
+
+			_TriggerServerEvent('esx_society:removeVehicleFromGarage', ActualGang.Name, vehicleProps)
+			ESX.ShowNotification('~r~Vous avez sorti votre véhicule~r~')
+		end, function(data, menu)
+			CurrentAction = 'menu_vehicle_spawner'
+			CurrentActionMsg = _U('vehicle_spawner')
+			CurrentActionData = {}
+		end)
+	end, ActualGang.Name)
+end
+
 function OpenIdentityCardMenu(player)
 
   if Config.EnableESXIdentity then
