@@ -1,4 +1,5 @@
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+ESX = exports["es_extended"]:getSharedObject() -- For new ESX versions
+
 
 local BusyList = {
 	['PlayersSearched'] = {
